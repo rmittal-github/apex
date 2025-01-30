@@ -36,16 +36,16 @@ def check_cuda_torch_binary_vs_bare_metal(cuda_dir):
     print("\nCompiling cuda extensions with")
     print(raw_output + "from " + cuda_dir + "/bin\n")
 
-##    if (bare_metal_version != torch_binary_version):
-##        raise RuntimeError(
-##            "Cuda extensions are being compiled with a version of Cuda that does "
-##            "not match the version used to compile Pytorch binaries.  "
-##            "Pytorch binaries were compiled with Cuda {}.\n".format(torch.version.cuda)
-##            + "In some cases, a minor-version mismatch will not cause later errors:  "
-##            "https://github.com/NVIDIA/apex/pull/323#discussion_r287021798.  "
-##            "You can try commenting out this check (at your own risk)."
-##        )
-##
+    if (bare_metal_version != torch_binary_version):
+        raise RuntimeError(
+            "Cuda extensions are being compiled with a version of Cuda that does "
+            "not match the version used to compile Pytorch binaries.  "
+            "Pytorch binaries were compiled with Cuda {}.\n".format(torch.version.cuda)
+            + "In some cases, a minor-version mismatch will not cause later errors:  "
+            "https://github.com/NVIDIA/apex/pull/323#discussion_r287021798.  "
+            "You can try commenting out this check (at your own risk)."
+        )
+
 
 def raise_if_cuda_home_none(global_option: str) -> None:
     if CUDA_HOME is not None:
@@ -363,10 +363,6 @@ if "--cuda_ext" in sys.argv:
         if bare_metal_version >= Version("11.8"):
             cc_flag.append("-gencode")
             cc_flag.append("arch=compute_90,code=sm_90")
-            cc_flag.append("-gencode")
-            cc_flag.append("arch=compute_100,code=sm_100")
-            cc_flag.append("-gencode")
-            cc_flag.append("arch=compute_120,code=sm_120")
 
         ext_modules.append(
             CUDAExtension(
@@ -472,10 +468,10 @@ if "--group_norm" in sys.argv:
 
     # CUDA group norm supports from SM70
     arch_flags = []
-    for arch in [70, 75, 80, 86, 90, 100, 120]:
+    for arch in [70, 75, 80, 86, 90]:
         arch_flag = f"-gencode=arch=compute_{arch},code=sm_{arch}"
         arch_flags.append(arch_flag)
-    arch_flag = f"-gencode=arch=compute_120,code=compute_120"
+    arch_flag = f"-gencode=arch=compute_90,code=compute_90"
     arch_flags.append(arch_flag)
 
     ext_modules.append(
@@ -570,10 +566,6 @@ if "--fast_layer_norm" in sys.argv:
     if bare_metal_version >= Version("11.8"):
         cc_flag.append("-gencode")
         cc_flag.append("arch=compute_90,code=sm_90")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_100,code=sm_100")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_120,code=sm_120")
 
     ext_modules.append(
         CUDAExtension(
@@ -616,10 +608,6 @@ if "--fmha" in sys.argv:
     if bare_metal_version >= Version("11.8"):
         cc_flag.append("-gencode")
         cc_flag.append("arch=compute_90,code=sm_90")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_100,code=sm_100")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_120,code=sm_120")
 
     ext_modules.append(
         CUDAExtension(
@@ -673,10 +661,6 @@ if "--fast_multihead_attn" in sys.argv:
     if bare_metal_version >= Version("11.8"):
         cc_flag.append("-gencode")
         cc_flag.append("arch=compute_90,code=sm_90")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_100,code=sm_100")
-        cc_flag.append("-gencode")
-        cc_flag.append("arch=compute_120,code=sm_120")
 
     subprocess.run(["git", "submodule", "update", "--init", "apex/contrib/csrc/multihead_attn/cutlass"])
     ext_modules.append(
